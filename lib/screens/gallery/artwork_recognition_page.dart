@@ -100,35 +100,28 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
   Future<void> _runModelOnImage(File image) async {
     if (_interpreter == null) return;
 
-    // Leer la imagen y convertirla en un formato adecuado para el modelo
     img.Image? inputImage = img.decodeImage(await image.readAsBytes());
     if (inputImage == null) return;
 
-    // Redimensionar la imagen a 224x224 (tamaño esperado)
     img.Image resizedImage = img.copyResize(inputImage, width: 224, height: 224);
 
-    // Convertir la imagen en un tensor de entrada [1, 224, 224, 3]
     var input = List.generate(224 * 224 * 3, (i) => 0.0).reshape([1, 224, 224, 3]);
     for (var y = 0; y < 224; y++) {
       for (var x = 0; x < 224; x++) {
         var pixel = resizedImage.getPixel(x, y);
-        input[0][y][x][0] = pixel.r / 255.0;  // Componente rojo
-        input[0][y][x][1] = pixel.g / 255.0;  // Componente verde
-        input[0][y][x][2] = pixel.b / 255.0;  // Componente azul
+        input[0][y][x][0] = pixel.r / 255.0;  
+        input[0][y][x][1] = pixel.g / 255.0;  
+        input[0][y][x][2] = pixel.b / 255.0; 
       }
     }
 
-    // Definir el tensor de salida para el modelo
     var output = List.filled(5, 0.0).reshape([1, 5]);
 
-    // Ejecutar el modelo en la imagen
     _interpreter!.run(input, output);
 
-    // Convert output to a list of doubles and find the index of the highest value
     List<double> outputList = List<double>.from(output[0]);
     int predictedIndex = outputList.indexWhere((element) => element == outputList.reduce((a, b) => a > b ? a : b));
 
-    // Map the index to the corresponding author
     String recognizedAuthor = correctOrderAuthors[predictedIndex];
 
     setState(() {
