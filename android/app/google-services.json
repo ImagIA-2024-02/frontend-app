@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "891408970175",
+    "project_id": "trabajofinalemergentes-ba5f1",
+    "storage_bucket": "trabajofinalemergentes-ba5f1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891408970175:android:3d9748c4313871d095f10a",
+        "android_client_info": {
+          "package_name": "com.example.tf_202402"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNypEgJXa5Qb5GLfsWVJQVCJBXKMuolxk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891408970175:android:e4979922f4fc3a7995f10a",
+        "android_client_info": {
+          "package_name": "om.example.trabajo_fi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNypEgJXa5Qb5GLfsWVJQVCJBXKMuolxk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
