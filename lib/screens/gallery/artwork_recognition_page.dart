@@ -60,15 +60,40 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
     }
   }
 
-  Future<void> _selectImage() async {
+  Future<void> _showImageSourceDialog() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Selecciona el origen de la imagen"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _pickImage(ImageSource.camera);
+            },
+            child: const Text("Cámara"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _pickImage(ImageSource.gallery);
+            },
+            child: const Text("Galería"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: source);
 
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
-      _runModelOnImage(File(pickedFile.path));
+      _runModelOnImage(_imageFile!);
     }
   }
 
@@ -99,14 +124,11 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
     // Ejecutar el modelo en la imagen
     _interpreter!.run(input, output);
 
-
-    // Primero, convierte output[0] en una lista de double explícitamente
+    // Convert output to a list of doubles and find the index of the highest value
     List<double> outputList = List<double>.from(output[0]);
-
-    // Luego, encuentra el índice del valor máximo en outputList
     int predictedIndex = outputList.indexWhere((element) => element == outputList.reduce((a, b) => a > b ? a : b));
 
-
+    // Map the index to the corresponding author
     String recognizedAuthor = correctOrderAuthors[predictedIndex];
 
     setState(() {
@@ -143,7 +165,7 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
                       : Image.file(_imageFile!, height: 200),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: _selectImage,
+                    onPressed: _showImageSourceDialog,
                     child: const Text("Seleccionar Imagen"),
                   ),
                   const SizedBox(height: 20),
