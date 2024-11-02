@@ -2,10 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tf_202402/screens/auth/login_screen.dart';
 import 'package:tf_202402/utils/validators.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key, this.onTap});
+  const RegisterScreen({super.key, required this.onTap});
   final Function()? onTap;
 
   @override
@@ -19,6 +20,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  bool showLoginPage = true;
+  void togglePages() {
+    setState(() {
+      showLoginPage = !showLoginPage;
+    });
+  }
 
   @override
   void dispose() {
@@ -101,155 +109,165 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo and Title
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.camera_alt_outlined, color: Colors.blueAccent, size: 36),
-                  SizedBox(width: 8),
-                  Text(
-                    'PictorIA',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A2A56),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo and Title
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.camera_alt_outlined, color: Colors.blueAccent, size: 36),
+                    SizedBox(width: 8),
+                    Text(
+                      'PictorIA',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A2A56),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Welcome! Sign up to continue enjoying the\nPictorIA benefits.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-
-              // First Name TextField
-              TextFormField(
-                controller: _firstNameController,
-                decoration: InputDecoration(
-                  labelText: 'First Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  ],
                 ),
-                validator: Validators.validateFirstName,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Last Name TextField
-              TextFormField(
-                controller: _lastNameController,
-                decoration: InputDecoration(
-                  labelText: 'Last Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Welcome! Sign up to continue enjoying the\nPictorIA benefits.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
                 ),
-                validator: Validators.validateLastName,
-              ),
-              const SizedBox(height: 16),
-
-              // Age TextField
-              TextFormField(
-                controller: _ageController,
-                decoration: InputDecoration(
-                  labelText: 'Age',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                validator: Validators.validateAge,
-              ),
-              const SizedBox(height: 16),
-
-              // Email TextField
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: Validators.validateEmail,
-              ),
-              const SizedBox(height: 16),
-
-              // Password TextField
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                obscureText: true,
-                validator: Validators.validatePassword,
-              ),
-              const SizedBox(height: 16),
-
-              // Confirm Password TextField
-              TextFormField(
-                controller: _confirmPasswordController,
-                decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                obscureText: true,
-                validator: Validators.validatePassword,
-              ),
-              const SizedBox(height: 24),
-
-              // Sign Up Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _signUserUp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A2A56),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
+                const SizedBox(height: 24),
+        
+                // First Name TextField
+                TextFormField(
+                  controller: _firstNameController,
+                  decoration: InputDecoration(
+                    labelText: 'First Name',
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text('Sign Up'),
+                  validator: Validators.validateFirstName,
                 ),
-              ),
-              
-              const SizedBox(height: 24),
-
-              // Already have an account? Login
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Already have an account? ', style: TextStyle(color: Colors.grey)),
-                  GestureDetector(
-                    onTap: widget.onTap,
-                    child: const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.orangeAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
+        
+                const SizedBox(height: 16),
+        
+                // Last Name TextField
+                TextFormField(
+                  controller: _lastNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Last Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                ],
-              ),
-            ],
+                  validator: Validators.validateLastName,
+                ),
+                const SizedBox(height: 16),
+        
+                // Age TextField
+                TextFormField(
+                  controller: _ageController,
+                  decoration: InputDecoration(
+                    labelText: 'Age',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: Validators.validateAge,
+                ),
+                const SizedBox(height: 16),
+        
+                // Email TextField
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: Validators.validateEmail,
+                ),
+                const SizedBox(height: 16),
+        
+                // Password TextField
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  obscureText: true,
+                  validator: Validators.validatePassword,
+                ),
+                const SizedBox(height: 16),
+        
+                // Confirm Password TextField
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  obscureText: true,
+                  validator: Validators.validatePassword,
+                ),
+                const SizedBox(height: 24),
+        
+                // Sign Up Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _signUserUp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1A2A56),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Sign Up'),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+        
+                // Already have an account? Login
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Already have an account? ', style: TextStyle(color: Colors.grey)),
+                    TextButton(
+                    onPressed: (){
+                      setState(() {
+                        showLoginPage = true;
+                      });
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return LoginScreen(
+                              onTap: togglePages,
+                            );
+                          }
+                        ),
+                      );
+                    }, 
+                    child: const Text('Login'),
+                  ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

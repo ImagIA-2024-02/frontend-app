@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tf_202402/screens/auth/forgot_password_page.dart';
+import 'package:tf_202402/screens/auth/register_screen.dart';
 import 'package:tf_202402/utils/validators.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, this.onTap});
+  const LoginScreen({super.key, required this.onTap});
   final Function()? onTap;
 
   @override
@@ -15,6 +16,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool showLoginPage = true;
+  void togglePages() {
+    setState(() {
+      showLoginPage = !showLoginPage;
+    });
+  }
   bool _isPasswordVisible = false;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -270,17 +277,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Text("Don't have an account? ",
                       style: TextStyle(color: Colors.grey)),
-                  GestureDetector(
-                    onTap: () {
-                      widget.onTap!();
-                    },
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: Colors.orangeAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  TextButton(
+                    onPressed: (){
+                      setState(() {
+                        showLoginPage = false; // Set to Register page
+                      });
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return RegisterScreen(
+                              onTap: togglePages,
+                            );
+                          }
+                        ),
+                      );
+                    }, 
+                    child: const Text('Sign Up'),
                   ),
                 ],
               ),
