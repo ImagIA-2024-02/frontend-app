@@ -2,7 +2,10 @@
 
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_ml_model_downloader/firebase_ml_model_downloader.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as image_lib;
@@ -31,16 +34,13 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
         "restoration_image",
         FirebaseModelDownloadType.localModelUpdateInBackground,
       );
-
       final interpreter = Interpreter.fromFile(model.file);
-
       setState(() {
         _interpreter = interpreter;
       });
-
-      print("Modelo cargado exitosamente");
+      print("Model loaded successfully");
     } catch (e) {
-      print("Error al cargar el modelo: $e");
+      print("Error loading model: $e");
     }
   }
 
@@ -48,21 +48,21 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Selecciona el origen de la imagen"),
+        title: const Text("Select Image Source"),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _pickImage(ImageSource.camera);
             },
-            child: const Text("Cámara"),
+            child: const Text("Camera"),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _pickImage(ImageSource.gallery);
             },
-            child: const Text("Galería"),
+            child: const Text("Gallery"),
           ),
         ],
       ),
@@ -97,7 +97,7 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
 
   List<List<List<List<double>>>> _preprocessImage(Uint8List imageBytes) {
     image_lib.Image? image = image_lib.decodeImage(imageBytes);
-    if (image == null) throw Exception("No se pudo decodificar la imagen");
+    if (image == null) throw Exception("Failed to decode image");
 
     image_lib.Image resizedImage = image_lib.copyResize(image, width: 256, height: 256);
 
@@ -120,10 +120,6 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
     return input;
   }
 
-  int _combineColor(int r, int g, int b) {
-    return (0xFF << 24) | (r << 16) | (g << 8) | b;
-  }
-
   Uint8List _postProcessOutput(List<dynamic> output) {
     const int width = 256;
     const int height = 256;
@@ -143,6 +139,22 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
     return Uint8List.fromList(image_lib.encodePng(restoredImage));
   }
 
+  Future<void> _saveToGallery() async {
+    if (_restoredImageBytes == null) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final storageRef = FirebaseStorage.instance.ref().child('user-gallery/${user.uid}/${DateTime.now().millisecondsSinceEpoch}.png');
+      await storageRef.putData(_restoredImageBytes!);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Image saved to gallery successfully')),
+      );
+
+      GoRouter.of(context).go('/gallery');
+    }
+  }
+
   @override
   void dispose() {
     _interpreter?.close();
@@ -153,7 +165,7 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Restauración de Imágenes'),
+        title: const Text('Image Restoration'),
         backgroundColor: Colors.blue,
       ),
       body: Center(
@@ -162,18 +174,23 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
           children: [
             _selectedImageBytes != null
                 ? Image.memory(_selectedImageBytes!, width: 256, height: 256)
-                : const Text("Selecciona una imagen"),
+                : const Text("Select an image"),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _showImageSourceDialog,
-              child: const Text("Seleccionar Imagen"),
+              child: const Text("Select Image"),
             ),
             const SizedBox(height: 20),
             _restoredImageBytes != null
                 ? Column(
                     children: [
-                      const Text("Imagen Restaurada"),
+                      const Text("Restored Image"),
                       Image.memory(_restoredImageBytes!, width: 256, height: 256),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _saveToGallery,
+                        child: const Text("Save to Gallery"),
+                      ),
                     ],
                   )
                 : Container(),

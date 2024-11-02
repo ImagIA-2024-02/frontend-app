@@ -25,6 +25,11 @@ class _HomePageState extends State<HomePage> {
     _loadImages();
   }
 
+  void _signOut(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    GoRouter.of(context).go('/');
+  }
+
   Future<void> _loadImages() async {
     final User? user = _auth.currentUser;
 
@@ -54,7 +59,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: const Icon(Icons.exit_to_app),
             onPressed: () {
-              _auth.signOut();
+              _signOut(context);
             },
           ),
         ],
