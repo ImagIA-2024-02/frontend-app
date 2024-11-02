@@ -183,36 +183,38 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
         title: const Text('Image Restoration'),
         backgroundColor: Colors.blue,
       ),
-      body: Center(
-        child: _isModelLoading
-            ? const CircularProgressIndicator() // Show loader while model loads
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _selectedImageBytes != null
-                      ? Image.memory(_selectedImageBytes!, width: 256, height: 256)
-                      : const Text("Select an image"),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _showImageSourceDialog,
-                    child: const Text("Select Image"),
-                  ),
-                  const SizedBox(height: 20),
-                  _restoredImageBytes != null
-                      ? Column(
-                          children: [
-                            const Text("Restored Image"),
-                            Image.memory(_restoredImageBytes!, width: 256, height: 256),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: _saveToGallery,
-                              child: const Text("Save to Gallery"),
-                            ),
-                          ],
-                        )
-                      : Container(),
-                ],
-              ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: _isModelLoading
+              ? const CircularProgressIndicator()
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _selectedImageBytes != null
+                        ? Image.memory(_selectedImageBytes!, width: 256, height: 256)
+                        : const Text("Select an image"),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _showImageSourceDialog,
+                      child: const Text("Select Image"),
+                    ),
+                    const SizedBox(height: 20),
+                    _restoredImageBytes != null
+                        ? Column(
+                            children: [
+                              const Text("Restored Image"),
+                              Image.memory(_restoredImageBytes!, width: 256, height: 256),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: _saveToGallery,
+                                child: const Text("Save to Gallery"),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ],
+                ),
+        ),
       ),
     );
   }

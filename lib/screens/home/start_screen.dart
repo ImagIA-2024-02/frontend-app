@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:tf_202402/screens/auth/login_screen.dart';
+import 'package:tf_202402/screens/auth/register_screen.dart';
 
-class StartScreen extends StatelessWidget {
+class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
+
+  @override
+  State<StartScreen> createState() => _StartScreenState();
+}
+
+class _StartScreenState extends State<StartScreen> {
+  bool showLoginPage = true; // Track which screen to show
+
+  void togglePages() {
+    setState(() {
+      showLoginPage = !showLoginPage; // Toggle between Login and Register
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +32,7 @@ class StartScreen extends StatelessWidget {
               backgroundColor: Colors.transparent,
             ),
             const SizedBox(height: 16),
-            
-            // Title and Subtitle
+
             const Text(
               'IMAGIA',
               style: TextStyle(
@@ -37,19 +50,23 @@ class StartScreen extends StatelessWidget {
                 letterSpacing: 1.2,
               ),
             ),
-            
             const SizedBox(height: 40),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Sign In Button
                 ElevatedButton(
                   onPressed: () {
-                    GoRouter.of(context).go('/login');
+                    setState(() {
+                      showLoginPage = true; // Set to Login page
+                    });
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => LoginScreen(onTap: togglePages),
+                    ));
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.black, 
+                    foregroundColor: Colors.black,
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: Colors.black),
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
@@ -59,16 +76,21 @@ class StartScreen extends StatelessWidget {
                   ),
                   child: const Text('Sign In'),
                 ),
-                
+
                 const SizedBox(width: 16),
-                
+
                 // Sign Up Button
                 ElevatedButton(
                   onPressed: () {
-                    GoRouter.of(context).go('/register');
+                    setState(() {
+                      showLoginPage = false; // Set to Register page
+                    });
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => RegisterScreen(onTap: togglePages),
+                    ));
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, 
+                    foregroundColor: Colors.white,
                     backgroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                     shape: RoundedRectangleBorder(
@@ -79,10 +101,8 @@ class StartScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
             const SizedBox(height: 20),
-            
-            // Divider with "Or" text
+
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -108,14 +128,11 @@ class StartScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
             const SizedBox(height: 20),
-            
-            // Social Media Login Options
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Facebook Login
                 IconButton(
                   icon: const Icon(Icons.facebook),
                   color: Colors.grey,
@@ -124,10 +141,7 @@ class StartScreen extends StatelessWidget {
                     // Handle Facebook login
                   },
                 ),
-                
                 const SizedBox(width: 20),
-                
-                // Google Login
                 IconButton(
                   icon: const Icon(Icons.g_mobiledata),
                   color: Colors.grey,
