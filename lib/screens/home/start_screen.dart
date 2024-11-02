@@ -40,14 +40,13 @@ class StartScreen extends StatelessWidget {
             
             const SizedBox(height: 40),
             
-            // Sign In and Sign Up Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Sign In Button
                 ElevatedButton(
                   onPressed: () {
-                    GoRouter.of(context).go('/loginOrRegister');
+                    GoRouter.of(context).go('/login');
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black, 
@@ -66,7 +65,7 @@ class StartScreen extends StatelessWidget {
                 // Sign Up Button
                 ElevatedButton(
                   onPressed: () {
-                    GoRouter.of(context).go('/loginOrRegister');
+                    GoRouter.of(context).go('/register');
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white, 
