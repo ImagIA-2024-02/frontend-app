@@ -19,13 +19,14 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
   String _result = "Resultado: Desconocido";
   File? _imageFile;
   bool _isModelLoaded = false;
+  bool _isLoadingModel = true; // Track model loading state
   String _status = "Cargando modelo...";
 
   final List<String> correctOrderAuthors = [
-    "Claude Monet", 
-    "Leonardo Da Vinci", 
-    "Pablo Picasso", 
-    "Salvador Dali", 
+    "Claude Monet",
+    "Leonardo Da Vinci",
+    "Pablo Picasso",
+    "Salvador Dali",
     "Van Gogh"
   ];
 
@@ -37,24 +38,24 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
 
   Future<void> _loadModel() async {
     try {
-      // Descargar el modelo desde Firebase Machine Learning
       final model = await FirebaseModelDownloader.instance.getModel(
         "image_recognition",
         FirebaseModelDownloadType.localModelUpdateInBackground,
       );
 
-      // Cargar el modelo usando tflite_flutter
       final interpreter = Interpreter.fromFile(model.file);
 
       setState(() {
         _interpreter = interpreter;
         _isModelLoaded = true;
+        _isLoadingModel = false;
         _status = "Modelo cargado correctamente.";
       });
       print("Modelo cargado exitosamente");
     } catch (e) {
       setState(() {
         _status = "Error al cargar el modelo: $e";
+        _isLoadingModel = false;
       });
       print("Error al cargar el modelo: $e");
     }
@@ -93,7 +94,14 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
-      _runModelOnImage(_imageFile!);
+
+      if (_isModelLoaded) {
+        _runModelOnImage(_imageFile!);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Modelo aún no está listo. Espere unos momentos.")),
+        );
+      }
     }
   }
 
@@ -109,9 +117,9 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
     for (var y = 0; y < 224; y++) {
       for (var x = 0; x < 224; x++) {
         var pixel = resizedImage.getPixel(x, y);
-        input[0][y][x][0] = pixel.r / 255.0;  
-        input[0][y][x][1] = pixel.g / 255.0;  
-        input[0][y][x][2] = pixel.b / 255.0; 
+        input[0][y][x][0] = pixel.r / 255.0;
+        input[0][y][x][1] = pixel.g / 255.0;
+        input[0][y][x][2] = pixel.b / 255.0;
       }
     }
 
@@ -143,8 +151,9 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
         backgroundColor: Colors.blue,
       ),
       body: Center(
-        child: _isModelLoaded
-            ? Column(
+        child: _isLoadingModel
+            ? const CircularProgressIndicator()
+            : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
@@ -168,11 +177,6 @@ class _ArtworkRecognitionPageState extends State<ArtworkRecognitionPage> {
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
-              )
-            : Text(
-                _status,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18),
               ),
       ),
     );

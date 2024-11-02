@@ -21,6 +21,7 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
   Interpreter? _interpreter;
   Uint8List? _selectedImageBytes;
   Uint8List? _restoredImageBytes;
+  bool _isModelLoading = true; // New variable to track model loading state
 
   @override
   void initState() {
@@ -30,6 +31,9 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
 
   Future<void> _loadModel() async {
     try {
+      setState(() {
+        _isModelLoading = true; // Start loading
+      });
       final model = await FirebaseModelDownloader.instance.getModel(
         "restoration_image",
         FirebaseModelDownloadType.localModelUpdateInBackground,
@@ -37,10 +41,14 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
       final interpreter = Interpreter.fromFile(model.file);
       setState(() {
         _interpreter = interpreter;
+        _isModelLoading = false; // Model is loaded
       });
       print("Model loaded successfully");
     } catch (e) {
       print("Error loading model: $e");
+      setState(() {
+        _isModelLoading = false; // Stop loading even on failure
+      });
     }
   }
 
@@ -78,7 +86,14 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
       setState(() {
         _selectedImageBytes = imageBytes;
       });
-      _runModel(imageBytes);
+
+      if (!_isModelLoading) {
+        _runModel(imageBytes);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Model is still loading, please wait.")),
+        );
+      }
     }
   }
 
@@ -169,33 +184,35 @@ class _ArtworkRestorationPageState extends State<ArtworkRestorationPage> {
         backgroundColor: Colors.blue,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _selectedImageBytes != null
-                ? Image.memory(_selectedImageBytes!, width: 256, height: 256)
-                : const Text("Select an image"),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _showImageSourceDialog,
-              child: const Text("Select Image"),
-            ),
-            const SizedBox(height: 20),
-            _restoredImageBytes != null
-                ? Column(
-                    children: [
-                      const Text("Restored Image"),
-                      Image.memory(_restoredImageBytes!, width: 256, height: 256),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _saveToGallery,
-                        child: const Text("Save to Gallery"),
-                      ),
-                    ],
-                  )
-                : Container(),
-          ],
-        ),
+        child: _isModelLoading
+            ? const CircularProgressIndicator() // Show loader while model loads
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _selectedImageBytes != null
+                      ? Image.memory(_selectedImageBytes!, width: 256, height: 256)
+                      : const Text("Select an image"),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _showImageSourceDialog,
+                    child: const Text("Select Image"),
+                  ),
+                  const SizedBox(height: 20),
+                  _restoredImageBytes != null
+                      ? Column(
+                          children: [
+                            const Text("Restored Image"),
+                            Image.memory(_restoredImageBytes!, width: 256, height: 256),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: _saveToGallery,
+                              child: const Text("Save to Gallery"),
+                            ),
+                          ],
+                        )
+                      : Container(),
+                ],
+              ),
       ),
     );
   }
